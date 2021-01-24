@@ -66,7 +66,7 @@ void USB0_Handler(void)
     /* Check if there's TX/RX Interrupt asserted on EP0 */ 
     if(gl_usb_tx_stat & 0x01) 
     {
-	    /* Enumeration Handler */ 
+        /* Enumeration Handler */ 
         USBEnum_Handler() ; 
     }
 }
