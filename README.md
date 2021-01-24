@@ -33,4 +33,4 @@ If you are willing to contribute-
 7. Create a pull request.
 
 ### Note
-This project uses USB descriptors as samples to depict functioning. If you are planning to re-use the same descriptors, please change the Vendor & Product IDs. We are not responsible for any legal actions in case of any misuse. The project's main aim is learning and contributing freely & legally to USB. 
+This project uses USB descriptors as samples to depict functioning. If you are planning to re-use the same descriptors, please change the Vendor & Product IDs. We are not responsible for any legal actions in case of any misuse. The project's main aim is learning and contributing freely & legally to USB firmware/software development.
