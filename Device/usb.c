@@ -42,7 +42,7 @@ void USBEnum_Handler(void)
                 fetch_out_packet(); 
                 while(USB0->CSRL0 & 0x02) ;
 
-				/* TODO: Remove numeric constant */ 
+                /* TODO: Remove numeric constant */ 
                 FillFIFO(&configurationDescriptors[64],data) ;
                 data = 0;
                 state = 1;
@@ -86,8 +86,8 @@ void USBCommunicate(void)
                 /* Clear RXRDY (ACK) and set DATAEND bit since no Data Stage for SET_ADDR */ 
                 USB0->CSRL0 = 0x41; 
                 dev_address = request->wValue ; 			
-				/* Pend changing the device address & write it after status stage is completed */ 
-    	        dev_address |= (1u<<31); 	/* Using the same variable as address is 7-bit */ 
+                /* Pend changing the device address & write it after status stage is completed */ 
+                dev_address |= (1u<<31); 	/* Using the same variable as address is 7-bit */ 
 
                 break ; 
             }
@@ -97,7 +97,7 @@ void USBCommunicate(void)
             {
                 USB0->CSRL0 = 0x40 ; 
 
-				/* TODO Figure out request and handle accordingly */ 
+                /* TODO Figure out request and handle accordingly */ 
 									
                 /* Figure out descriptor type (wValue 0xFF00) >> 8 */ 
                     
@@ -105,7 +105,7 @@ void USBCommunicate(void)
                 {
                     while(USB0->CSRL0 & 0x02) ;
                     size = (request->wLength > DeviceDescriptor[0]) ? request->wLength : DeviceDescriptor[0]; 						
-				    FillFIFO(DeviceDescriptor,DeviceDescriptor[0]) ;                      
+                    FillFIFO(DeviceDescriptor,DeviceDescriptor[0]) ;                      
                     while(USB0->CSRL0 & 0x02) ;
 
                     USB0->CSRL0 = 0x0A ;                     
@@ -123,9 +123,9 @@ void USBCommunicate(void)
                         data = sizeof(configurationDescriptors) - 64; 
                         state = 2; 
                         USB0->CSRL0 = 0x02 ;
-                    }
-								
-					else	
+                    }	
+
+                    else	
                     {
                         FillFIFO(configurationDescriptors,request->wLength) ;
                         USB0->CSRL0 = 0x0A ;
