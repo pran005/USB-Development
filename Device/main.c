@@ -11,16 +11,16 @@ int main(void)
     init_onBoardLed(); 
 	
     /* Configure USB GPIOs */ 
-    SYSCTL->RCGCGPIO |= (1<<3) ; 
+    SYSCTL->RCGCGPIO |= (1u<<3) ; 
     
-    while(!(SYSCTL->PRGPIO & (1<<3))) ; 
+    while(!(SYSCTL->PRGPIO & (1u<<3))) ; 
 
-    GPIOD->AFSEL &= ~ ( (1u<<4) | (1<<5) ) ; 
-    GPIOD->DEN   &= ~ ( (1u<<4) | (1<<5) ) ; 
-    GPIOD->AMSEL |=   ( (1<<4) | (1<<5) ) ; 
+    GPIOD->AFSEL &= ~ ( (1u<<4) | (1u<<5) ) ; 
+    GPIOD->DEN   &= ~ ( (1u<<4) | (1u<<5) ) ; 
+    GPIOD->AMSEL |=   ( (1u<<4) | (1u<<5) ) ; 
 		
     /* Reset USB SRCR2 */ 
-    SYSCTL->SRCR2 |= (1<<16) ;
+    SYSCTL->SRCR2 |= (1u<<16) ;
 
     for (volatile uint8_t i=0; i<16; i++) ; 
 
@@ -41,10 +41,10 @@ int main(void)
     gl_usb_rx_stat = USB0->RXIS  ; 
 		
     /* Initialize the USB IP */ 
-    USB0->IE    |= (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<5) ;
+    USB0->IE    |= (1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5) ;
     USB0->TXIE  |= 0xFF ;
     USB0->RXIE  |= 0xFE ;
-		USB0->TXFIFOSZ |= 0x4; 
+	USB0->TXFIFOSZ |= 0x4; 
    		
     /* Enable 'em D+/D- Terminations */ 
     USB0->POWER |= (1<<6) ; 
@@ -74,7 +74,7 @@ void USB0_Handler(void)
 void init_onBoardLed(void)
 {
 	/* Enable GPIOF Clocks */ 
-  SYSCTL -> RCGCGPIO |= (1<<5) ;
+    SYSCTL -> RCGCGPIO |= (1<<5) ;
 	
 	/* Wait for the clocks to stabilize */
 	while(! ((SYSCTL->PRGPIO) & (1<<5)) ) ;
