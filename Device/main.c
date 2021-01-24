@@ -10,7 +10,7 @@ int main(void)
 {
     init_onBoardLed(); 
 	
-		/* Configure USB GPIOs */ 
+    /* Configure USB GPIOs */ 
     SYSCTL->RCGCGPIO |= (1<<3) ; 
     
     while(!(SYSCTL->PRGPIO & (1<<3))) ; 
@@ -36,11 +36,11 @@ int main(void)
     USB0->GPCS |= 0x03; 
     
     /* Clear Interrupt Status Registers */ 
-		gl_usb_intr_stat= USB0->IS ;
+    gl_usb_intr_stat= USB0->IS ;
     gl_usb_tx_stat = USB0->TXIS  ;
     gl_usb_rx_stat = USB0->RXIS  ; 
 		
-		/* Initialize the USB IP */ 
+    /* Initialize the USB IP */ 
     USB0->IE    |= (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<5) ;
     USB0->TXIE  |= 0xFF ;
     USB0->RXIE  |= 0xFE ;
@@ -49,7 +49,7 @@ int main(void)
     /* Enable 'em D+/D- Terminations */ 
     USB0->POWER |= (1<<6) ; 
 		
-		/* You should know this one */
+    /* You should know this one */
     NVIC_EnableIRQ(USB0_IRQn) ; 
 		
     while(1); 
@@ -66,7 +66,7 @@ void USB0_Handler(void)
     /* Check if there's TX/RX Interrupt asserted on EP0 */ 
     if(gl_usb_tx_stat & 0x01) 
     {
-				/* Enumeration Handler */ 
+	/* Enumeration Handler */ 
         USBEnum_Handler() ; 
     }
 }
