@@ -44,7 +44,7 @@ int main(void)
     USB0->IE    |= (1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5) ;
     USB0->TXIE  |= 0xFF ;
     USB0->RXIE  |= 0xFE ;
-	USB0->TXFIFOSZ |= 0x4; 
+    USB0->TXFIFOSZ |= 0x4; 
    		
     /* Enable 'em D+/D- Terminations */ 
     USB0->POWER |= (1<<6) ; 
@@ -66,14 +66,14 @@ void USB0_Handler(void)
     /* Check if there's TX/RX Interrupt asserted on EP0 */ 
     if(gl_usb_tx_stat & 0x01) 
     {
-	/* Enumeration Handler */ 
+	    /* Enumeration Handler */ 
         USBEnum_Handler() ; 
     }
 }
 
 void init_onBoardLed(void)
 {
-	/* Enable GPIOF Clocks */ 
+    /* Enable GPIOF Clocks */ 
     SYSCTL -> RCGCGPIO |= (1<<5) ;
 	
 	/* Wait for the clocks to stabilize */
