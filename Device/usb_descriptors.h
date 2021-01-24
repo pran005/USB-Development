@@ -12,7 +12,7 @@ static uint8_t const iProduct[]=
 /* bDescriptorType */                                                     0x03U, 
 /* bString */
     (uint8_t)'C', 0U,
-	(uint8_t)'D', 0U,
+    (uint8_t)'D', 0U,
     (uint8_t)'C', 0U,
     (uint8_t)' ', 0U,
     (uint8_t)'D', 0U,
@@ -37,7 +37,7 @@ static uint8_t const iMan[]=
 /* bLength */                                                             0x38U, 
 /* bDescriptorType */                                                     0x03U, 
 /* bString */ 
- 	(uint8_t)'P', 0U, 
+    (uint8_t)'P', 0U, 
     (uint8_t)'r', 0U,
     (uint8_t)'a', 0U,
     (uint8_t)'n', 0U,
@@ -73,8 +73,8 @@ static uint8_t const idevice[]=
 /******************************************************************************/
 /* bLength */                                                             0x26U, 
 /* bDescriptorType */                                                     0x03U, 
-/* bString */ 
-  	(uint8_t)'C', 0U,
+/* bString */
+    (uint8_t)'C', 0U,
     (uint8_t)'D', 0U,
     (uint8_t)'C', 0U,
     (uint8_t)' ', 0U,
@@ -112,8 +112,8 @@ static uint8_t const stringDescriptors[] =
 /******************************************************************************/
 /* bLength */                                                             0x2CU, 
 /* bDescriptorType */                                                     0x03U, 
-/* bString */ 
-  	(uint8_t)'P', 0U,
+/* bString */
+    (uint8_t)'P', 0U,
     (uint8_t)'r', 0U, 
     (uint8_t)'a', 0U, 
     (uint8_t)'n', 0U,
@@ -152,23 +152,21 @@ static uint8_t DeviceDescriptor[] =
 /******************************************************************************/
 /*Device Descriptor                                                           */    
 /******************************************************************************/
-/* bLength */														      0x12U,  
-/* bDescriptorType */													  0x01U,
-/* bcdUSB */			  				   							0x10U,0x01U,
-/* bDeviceClass */													      0x02U,
-/* bDeviceSubClass */													  0x00U,			
-/* bDeviceProtocol */													  0x00U,
-/* bMaxPacketSize (EP0) */												  0x40U,
+/* bLength */                                                             0x12U,  
+/* bDescriptorType */                                                     0x01U,
+/* bcdUSB */                                                        0x10U,0x01U,
+/* bDeviceClass */                                                        0x02U,
+/* bDeviceSubClass */                                                     0x00U,			
+/* bDeviceProtocol */                                                     0x00U,
+/* bMaxPacketSize (EP0) */                                                0x40U,
+/* idVendor */                                                      0xB4U,0x04U,
+/* idProduct */                                                     0x02U,0x00U,
+/* bcdDevice */                                                     0x00U,0x01U,
+/* iManufacturer */                                                       0x01U,
+/* iProduct */                                                            0x02U,
 
-/* idVendor */														0xB4U,0x04U,
-/* idProduct */ 		         									0x02U,0x00U,
-
-/* bcdDevice */	 	       											0x00U,0x01U,
-/* iManufacturer */													      0x01U,
-/* iProduct */															  0x02U,
-
-/* iSerialNumber */														  0x03U,
-/* bNumConfigurations */												  0x01U,
+/* iSerialNumber */                                                       0x03U,
+/* bNumConfigurations */                                                  0x01U,
 }; 
 
 
