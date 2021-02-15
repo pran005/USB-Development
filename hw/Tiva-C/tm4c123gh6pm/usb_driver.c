@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    usb_driver.c 
   * @author  Pranjal Shrivastava
-  * @version v0.1 - Hardware Driver Layer  
+  * @version v0.2 - USB Hardware Driver Layer  
   * @date    15-February-2021
   * @brief   Peripheral Driver for USB IP in TM4C123GH6PM MCU 
   ******************************************************************************
@@ -69,16 +69,6 @@ void USBEnable_EpInterrupts(usb_en_EpType_t EpType, usb_eb_mode_t usbMode, uint3
     /* TODO: Add Host Mode support */ 
 }
 
-/* A read clears the interrupts
- * 
- * Retval structure- 
- *
- * 15            8              0 
- *  -----------------------------
- * | Tx EP status | Rx EP Status |
- *  -----------------------------
- */
-
 uint32_t USBRead_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode)
 {
     uint32_t retval 
@@ -97,8 +87,6 @@ uint32_t USBRead_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode)
   
     return retval; 
 }
-
-
 
 void init_usb_hw(void)
 {
@@ -131,11 +119,12 @@ void init_usb_hw(void)
 
     /* Clear Interrupt Status Registers */ 
     USBRead_GeneralInterrupts(); 
-    USBRead_EpInterrupts(); 
-		
+    USBRead_EpInterrupts(EP_TYP_IN, USB_MODE_DEVICE); 
+	USBRead_EpInterrupts(EP_TYP_OUT, USB_MODE_DEVICE);	
+    
     /* Initialize the USB IP */ 
     USBEnable_GeneralInterrupts((1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5));
-    USBEnable_EpInterrupts(0xFF); 
+    USBEnable_EpInterrupts(EP_TYP_ALL, USB_MODE_DEVICE,0xFF); 
 
     /* TODO: Configure FIFO API*/
     USB0->TXFIFOSZ |= 0x4; 
