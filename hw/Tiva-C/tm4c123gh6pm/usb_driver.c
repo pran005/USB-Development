@@ -21,6 +21,28 @@ static void usb_set_mode(usb_en_mode_t usbMode)
     }
 }
 
+/* A read clears the interrupts */ 
+uint32_t USBRead_signal_status(void)
+{
+    return USB0->IS; 
+}
+
+/* A read clears the interrupts
+ * 
+ * Retval structure- 
+ *
+ * 15            8              0 
+ *  -----------------------------
+ * | Tx EP status | Rx EP Status |
+ *  -----------------------------
+ */
+
+uint32_t USBRead_EpStatus(void)
+{
+    uint32_t retval = USB0->TXIS; 
+    retval = (retval << 8) | USB0->RXIS; 
+    return retval; 
+}
 
 void init_usb_hw(void)
 {
@@ -52,9 +74,8 @@ void init_usb_hw(void)
     usb_set_mode(USB_MODE_DEVICE); 
 
     /* Clear Interrupt Status Registers */ 
-    gl_usb_intr_stat= USB0->IS;
-    gl_usb_tx_stat = USB0->TXIS;
-    gl_usb_rx_stat = USB0->RXIS; 
+    USBRead_signal_status(); 
+    USBRead_EpStatus(); 
 		
     /* Initialize the USB IP */ 
     USB0->IE    |= (1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5);
