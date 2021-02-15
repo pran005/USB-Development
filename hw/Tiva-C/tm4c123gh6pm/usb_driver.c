@@ -11,6 +11,8 @@
 
 #include "usb_driver.h"
 
+/* TODO: Add param check for all functions & decide retval */ 
+
 static void usb_set_mode(usb_en_mode_t usbMode)
 {
     switch(usbMode)
