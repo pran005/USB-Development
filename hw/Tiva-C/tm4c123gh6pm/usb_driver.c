@@ -1,3 +1,14 @@
+/**
+  ******************************************************************************
+  * @file    usb_driver.c 
+  * @author  Pranjal Shrivastava
+  * @version v0.1 - Hardware Driver Layer  
+  * @date    15-February-2021
+  * @brief   Peripheral Driver for USB IP in TM4C123GH6PM MCU 
+  ******************************************************************************
+ **/
+
+
 #include "usb_driver.h"
 
 static void usb_set_mode(usb_en_mode_t usbMode)
@@ -102,6 +113,7 @@ void init_usb_hw(void)
     USBEnable_GeneralInterrupts((1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5));
     USBEnable_EpInterrupts(0xFF); 
 
+    /* TODO: Configure FIFO API*/
     USB0->TXFIFOSZ |= 0x4; 
    		
     /* Enable 'em D+/D- Terminations */ 
