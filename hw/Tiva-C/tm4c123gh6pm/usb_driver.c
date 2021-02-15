@@ -21,10 +21,29 @@ static void usb_set_mode(usb_en_mode_t usbMode)
     }
 }
 
+void USBEnable_GeneralInterrupts(uint32_t intrMask)
+{
+    USB0->IE |= intrMask; 
+}
+
+void USBDisable_GeneralInterrupts(uint32_t intrMask)
+{
+    USB0->IE &= ~intrMask; 
+}
+
 /* A read clears the interrupts */ 
-uint32_t USBRead_signal_status(void)
+uint32_t USBRead_GeneralInterrupts(void)
 {
     return USB0->IS; 
+}
+
+/* TODO : Define a mechanism to separate IN & OUT 
+ *        endpoints in host & device modes.
+ */
+void USBEnable_EpInterrupts(uint32_t EpIntMsk)
+{
+    USB0->TXIE = EpIntMsk; 
+    USB0->RXIE = (EpIntMsk & (~0x01)); 
 }
 
 /* A read clears the interrupts
@@ -37,12 +56,14 @@ uint32_t USBRead_signal_status(void)
  *  -----------------------------
  */
 
-uint32_t USBRead_EpStatus(void)
+uint32_t USBRead_EpInterrupts(void)
 {
     uint32_t retval = USB0->TXIS; 
     retval = (retval << 8) | USB0->RXIS; 
     return retval; 
 }
+
+
 
 void init_usb_hw(void)
 {
@@ -74,13 +95,13 @@ void init_usb_hw(void)
     usb_set_mode(USB_MODE_DEVICE); 
 
     /* Clear Interrupt Status Registers */ 
-    USBRead_signal_status(); 
-    USBRead_EpStatus(); 
+    USBRead_GeneralInterrupts(); 
+    USBRead_EpInterrupts(); 
 		
     /* Initialize the USB IP */ 
-    USB0->IE    |= (1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5);
-    USB0->TXIE  |= 0xFF ;
-    USB0->RXIE  |= 0xFE ;
+    USBEnable_GeneralInterrupts((1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5));
+    USBEnable_EpInterrupts(0xFF); 
+
     USB0->TXFIFOSZ |= 0x4; 
    		
     /* Enable 'em D+/D- Terminations */ 
