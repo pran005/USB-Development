@@ -48,13 +48,25 @@ uint32_t USBRead_GeneralInterrupts(void)
     return USB0->IS; 
 }
 
-/* TODO : Define a mechanism to separate IN & OUT 
- *        endpoints in host & device modes.
- */
-void USBEnable_EpInterrupts(uint32_t EpIntMsk)
+void USBEnable_EpInterrupts(usb_en_EpType_t EpType, usb_eb_mode_t usbMode, uint32_t EpIntMsk)
 {
-    USB0->TXIE = EpIntMsk; 
-    USB0->RXIE = (EpIntMsk & (~0x01)); 
+    if((EpType==EP_TYP_IN) && (usbMode == USB_MODE_DEVICE))
+    {
+        USB0->TXIE = EpIntMsk; 
+    }
+
+    else if((EpType==EP_TYP_OUT) && (usbMode == USB_MODE_DEVICE))
+    {
+        USB0->RXIE = (EpIntMsk & (~0x01)); 
+    }
+
+    else if((EpType==EP_TYP_ALL) && (usbMode == USB_MODE_DEVICE))
+    {
+        USB0->TXIE = EpIntMsk; 
+        USB0->RXIE = (EpIntMsk & (~0x01)); 
+    }
+    
+    /* TODO: Add Host Mode support */ 
 }
 
 /* A read clears the interrupts
@@ -67,10 +79,22 @@ void USBEnable_EpInterrupts(uint32_t EpIntMsk)
  *  -----------------------------
  */
 
-uint32_t USBRead_EpInterrupts(void)
+uint32_t USBRead_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode)
 {
-    uint32_t retval = USB0->TXIS; 
-    retval = (retval << 8) | USB0->RXIS; 
+    uint32_t retval 
+    
+    if((EpType==EP_TYP_IN) && (usbMode == USB_MODE_DEVICE))
+    {
+        retval = USB0->TXIS; 
+    }
+
+    else if((EpType==EP_TYP_OUT) && (usbMode == USB_MODE_DEVICE))
+    {
+        retval = USB0->RXIS; 
+    }
+
+    /* TODO: Add Host mode support */ 
+  
     return retval; 
 }
 
