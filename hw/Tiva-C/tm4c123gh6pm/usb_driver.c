@@ -122,7 +122,7 @@ void init_usb_hw(void)
     /* Clear Interrupt Status Registers */ 
     USBRead_GeneralInterrupts(); 
     USBRead_EpInterrupts(EP_TYP_IN, USB_MODE_DEVICE); 
-	USBRead_EpInterrupts(EP_TYP_OUT, USB_MODE_DEVICE);	
+    USBRead_EpInterrupts(EP_TYP_OUT, USB_MODE_DEVICE);	
     
     /* Initialize the USB IP */ 
     USBEnable_GeneralInterrupts((1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5));
