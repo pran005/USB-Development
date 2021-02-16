@@ -18,7 +18,7 @@
 /* TODO: Add init FIFO API. The FIFO for EP0 doesn't support
  *       dynamic sizing, instead the first 64-bytes of the 
  *       FIFO RAM are reserved for EP0 which is shared between
- *       IN & OUT transfers. 
+ *       IN & OUT transfers (Section 18.3.3.1 of Datasheet). 
  */
   	
 static void usb_set_mode(usb_en_mode_t usbMode)
