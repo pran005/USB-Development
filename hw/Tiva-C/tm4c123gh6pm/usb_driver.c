@@ -44,6 +44,15 @@ static void reset_usb_peripheral(void)
     SYSCTL->SRCR2 &= ~(1u<<16); 
 }
 
+static void usb_clock_config(void)
+{
+    /* Enable USB clocks */ 
+    SYSCTL->RCGCUSB |= (1<<0);
+
+    /* Enable USB PLL */
+    SYSCTL->RCC2 &= ~(1u<<14); 
+}
+
 static void usb_set_mode(usb_en_mode_t usbMode)
 {
     switch(usbMode)
@@ -123,16 +132,14 @@ uint32_t USBRead_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode)
 
 void initialize_usb_driver(void)
 {
+    /* Configure GPIOs for USB */
     initialize_usb_pins(); 
     
     /* Reset USB peripheral */ 
     reset_usb_peripheral();
 
-    /* Enable USB clocks */ 
-    SYSCTL->RCGCUSB |= (1<<0);
-
-    /* Enable USB PLL */
-    SYSCTL->RCC2 &= ~(1u<<14); 
+    /* Enable USB Clocks */
+    usb_clock_config();
 
     /* Set USB mode */ 
     usb_set_mode(USB_MODE_DEVICE); 
