@@ -90,7 +90,7 @@ uint32_t USBRead_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode)
     return retval; 
 }
 
-void init_usb_hw(void)
+void initialize_usb_driver(void)
 {
     /* Configure USB GPIOs (section 18.2 of the datasheet) */ 
     SYSCTL->RCGCGPIO |= (1u<<3); 
