@@ -35,6 +35,15 @@ static void initialize_usb_pins(void)
     GPIOD->AMSEL |=   ( (1u<<4) | (1u<<5) );
 }
 
+static void reset_usb_peripheral(void)
+{
+    SYSCTL->SRCR2 |= (1u<<16);
+
+    for (volatile uint8_t i=0; i<16; i++); 
+    
+    SYSCTL->SRCR2 &= ~(1u<<16); 
+}
+
 static void usb_set_mode(usb_en_mode_t usbMode)
 {
     switch(usbMode)
@@ -117,11 +126,7 @@ void initialize_usb_driver(void)
     initialize_usb_pins(); 
     
     /* Reset USB peripheral */ 
-    SYSCTL->SRCR2 |= (1u<<16);
-
-    for (volatile uint8_t i=0; i<16; i++); 
-    
-    SYSCTL->SRCR2 &= ~(1u<<16); 
+    reset_usb_peripheral();
 
     /* Enable USB clocks */ 
     SYSCTL->RCGCUSB |= (1<<0);
