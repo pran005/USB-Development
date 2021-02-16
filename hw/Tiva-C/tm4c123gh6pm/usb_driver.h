@@ -18,6 +18,13 @@ typedef enum usb_en_mode_t
     USB_MODE_DEVICE,
 }usb_en_mode_t
 
+void USBEnable_GeneralInterrupts(uint32_t intrMask);
+void USBDisable_GeneralInterrupts(uint32_t intrMask);
+uint32_t USBRead_GeneralInterrupts(void);
+uint32_t USBRead_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode);
+void initialize_usb_driver(void);
+
+
 #endif /* __usb_driver_h_ */ 
 
 
