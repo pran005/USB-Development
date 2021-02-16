@@ -20,7 +20,21 @@
  *       FIFO RAM are reserved for EP0 which is shared between
  *       IN & OUT transfers (Section 18.3.3.1 of Datasheet). 
  */
-  	
+
+static void initialize_usb_pins(void)
+{
+    /* Configure USB GPIOs (section 18.2 of the datasheet) */ 
+    SYSCTL->RCGCGPIO |= (1u<<3); 
+    
+    /* Wait for clock to stabilize */ 
+    while(!(SYSCTL->PRGPIO & (1u<<3))); 
+
+    /* Configure GPIOs to Analog Mode */ 
+    GPIOD->AFSEL &= ~ ( (1u<<4) | (1u<<5) ); 
+    GPIOD->DEN   &= ~ ( (1u<<4) | (1u<<5) ); 
+    GPIOD->AMSEL |=   ( (1u<<4) | (1u<<5) );
+}
+
 static void usb_set_mode(usb_en_mode_t usbMode)
 {
     switch(usbMode)
@@ -100,17 +114,8 @@ uint32_t USBRead_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode)
 
 void initialize_usb_driver(void)
 {
-    /* Configure USB GPIOs (section 18.2 of the datasheet) */ 
-    SYSCTL->RCGCGPIO |= (1u<<3); 
+    initialize_usb_pins(); 
     
-    /* Wait for clock to stabilize */ 
-    while(!(SYSCTL->PRGPIO & (1u<<3))); 
-
-    /* Configure GPIOs to Analog Mode */ 
-    GPIOD->AFSEL &= ~ ( (1u<<4) | (1u<<5) ); 
-    GPIOD->DEN   &= ~ ( (1u<<4) | (1u<<5) ); 
-    GPIOD->AMSEL |=   ( (1u<<4) | (1u<<5) ); 
-		
     /* Reset USB peripheral */ 
     SYSCTL->SRCR2 |= (1u<<16);
 
