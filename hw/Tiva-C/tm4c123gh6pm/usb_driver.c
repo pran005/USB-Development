@@ -80,6 +80,18 @@ static void usb_set_mode(usb_en_mode_t usbMode)
     }
 }
 
+void Device_Connect(void)
+{
+    /* Enable 'em D+/D- Terminations */ 
+    USB0->POWER |= (1<<6); 
+}
+
+void Device_Disconnect(void)
+{
+    /* Disable 'em D+/D- Terminations */ 
+    USB0->POWER &= ~(1<<6); 
+}
+
 void USBEnable_GeneralInterrupts(uint32_t intrMask)
 {
     USB0->IE |= intrMask; 
@@ -159,9 +171,9 @@ void initialize_usb_driver(void)
     USBEnable_GeneralInterrupts((1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5));
     USBEnable_EpInterrupts(EP_TYP_ALL, USB_MODE_DEVICE,0xFF); 
   	
-    /* Enable 'em D+/D- Terminations */ 
-    USB0->POWER |= (1<<6); 
-		
+    /* Make device visible on bus */
+    Device_Connect();
+
     /* You should know this one */
     NVIC_EnableIRQ(USB0_IRQn); 
 
