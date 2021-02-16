@@ -11,8 +11,16 @@
 
 #include "usb_driver.h"
 
+/* TODO: Remove magic numbers */
+
 /* TODO: Add param check for all functions & decide retval */ 
 
+/* TODO: Add init FIFO API. The FIFO for EP0 doesn't support
+ *       dynamic sizing, instead the first 64-bytes of the 
+ *       FIFO RAM are reserved for EP0 which is shared between
+ *       IN & OUT transfers. 
+ */
+  	
 static void usb_set_mode(usb_en_mode_t usbMode)
 {
     switch(usbMode)
@@ -127,10 +135,7 @@ void initialize_usb_driver(void)
     /* Initialize the USB IP */ 
     USBEnable_GeneralInterrupts((1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5));
     USBEnable_EpInterrupts(EP_TYP_ALL, USB_MODE_DEVICE,0xFF); 
-
-    /* TODO: Configure FIFO API*/
-    USB0->TXFIFOSZ |= 0x4; 
-   		
+  	
     /* Enable 'em D+/D- Terminations */ 
     USB0->POWER |= (1<<6); 
 		
