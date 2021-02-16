@@ -73,7 +73,7 @@ static void usb_set_mode(usb_en_mode_t usbMode)
             USB0->GPCS = 0x00;
             break;
 
-        case USB_MODE_HOST: 
+        case USB_MODE_DEVICE: 
 
             USB0->GPCS = 0x03;
             break; 
@@ -108,7 +108,7 @@ uint32_t USBRead_GeneralInterrupts(void)
     return USB0->IS; 
 }
 
-void USBEnable_EpInterrupts(usb_en_EpType_t EpType, usb_eb_mode_t usbMode, uint32_t EpIntMsk)
+void USBEnable_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode, uint16_t EpIntMsk)
 {
     if((EpType==EP_TYP_IN) && (usbMode == USB_MODE_DEVICE))
     {
@@ -131,7 +131,7 @@ void USBEnable_EpInterrupts(usb_en_EpType_t EpType, usb_eb_mode_t usbMode, uint3
 
 uint32_t USBRead_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode)
 {
-    uint32_t retval 
+    uint32_t retval = 0;
     
     if((EpType==EP_TYP_IN) && (usbMode == USB_MODE_DEVICE))
     {
