@@ -21,6 +21,10 @@
  *       IN & OUT transfers (Section 18.3.3.1 of Datasheet). 
  */
 
+
+/* TODO: Separate device specific and IP specific functions */ 
+
+/* Device Specific */
 static void initialize_usb_pins(void)
 {
     /* Configure USB GPIOs (section 18.2 of the datasheet) */ 
@@ -35,6 +39,7 @@ static void initialize_usb_pins(void)
     GPIOD->AMSEL |=   ( (1u<<4) | (1u<<5) );
 }
 
+/* Device Specific */
 static void reset_usb_peripheral(void)
 {
     SYSCTL->SRCR2 |= (1u<<16);
@@ -44,6 +49,7 @@ static void reset_usb_peripheral(void)
     SYSCTL->SRCR2 &= ~(1u<<16); 
 }
 
+/* Device Specific */
 static void usb_clock_config(void)
 {
     /* Enable USB clocks */ 
