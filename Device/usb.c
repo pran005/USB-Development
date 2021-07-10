@@ -11,7 +11,7 @@ static volatile uint16_t data ;
 static volatile uint32_t dev_address;  
 
 /* TODO: Define clear states, use typedef enum for state variable */
-void USBEnum_Handler(void)
+void ControlEP_Handler(void)
 {
     switch(state)
     {
@@ -22,7 +22,7 @@ void USBEnum_Handler(void)
             break ;
         }
 				
-        /* Status Stage */ 
+		/* Status Stage */ 
         case 1: 
         { 
             if (dev_address & (1u<<31))
@@ -34,24 +34,25 @@ void USBEnum_Handler(void)
             break ;
         }
 				
-        /* The "still transmitting" Stage (bMaxPacketSize < data length) */
-        case 2:
+		/* The "still transmitting" Stage (bMaxPacketSize < data length) */
+		case 2:
         {
-            if(data)
-            {
-                fetch_out_packet(); 
-                while(USB0->CSRL0 & 0x02) ;
-
-                /* TODO: Remove numeric constant */ 
-                FillFIFO(&configurationDescriptors[64],data) ;
-                data = 0;
-                state = 1;
-                
-                while(USB0->CSRL0 & 0x02) ;
-                USB0->CSRL0 = 0x0A ; 
-            }	
-            break;
+		    if(data)
+			{
+			    fetch_out_packet(); 
+				while(USB0->CSRL0 & 0x02) ;
+						
+				/* TODO: Remove numeric constant */ 
+				FillFIFO(&configurationDescriptors[64],data) ;
+				data = 0;
+				state = 1;
+					
+				while(USB0->CSRL0 & 0x02) ;
+				USB0->CSRL0 = 0x0A ; 
+			}	
+				break;
         }
+
     }
 }
 
@@ -60,11 +61,17 @@ void USBCommunicate(void)
 {
     bool dir = IN ; 
     bool isStd = false ; 
-	uint16_t size=0; 
+	  uint16_t size=0; 
 
-    /* Check if a packet was received from the Host */ 
+    /* 
+     * Check if a packet was received from the Host. The IP 
+     * on Tiva-C doesn't give info about OUT or IN packet.
+     * Hence the following piece of code figures that. 
+     */ 
+
     if(USB0->CSRL0 & 0x01)
     {
+        /* TODO: Read EP0 rename */ 
         fetch_out_packet() ; 
         request = (volatile USB_Request_t*)gl_control_ep_out_buffer ;
         
@@ -81,76 +88,87 @@ void USBCommunicate(void)
         switch(request->bRequest)    
         {
             /* Set address */ 
-            case 0x05 :
-            {                                  
-                /* Clear RXRDY (ACK) and set DATAEND bit since no Data Stage for SET_ADDR */ 
-                USB0->CSRL0 = 0x41; 
-                dev_address = request->wValue ; 			
-                /* Pend changing the device address & write it after status stage is completed */ 
-                dev_address |= (1u<<31); 	/* Using the same variable as address is 7-bit */ 
-
-                break ; 
-            }
-
-            /* GET_DESCRIPTOR */ 
-            case 0x06 : 
-            {
-                USB0->CSRL0 = 0x40 ; 
-
-                /* TODO Figure out request and handle accordingly */ 
-									
-                /* Figure out descriptor type (wValue 0xFF00) >> 8 */ 
-                    
-                if((request->wValue>>8) == 0x1) 
+            case 0x05 : 
                 {
-                    while(USB0->CSRL0 & 0x02) ;
-                    size = (request->wLength > DeviceDescriptor[0]) ? request->wLength : DeviceDescriptor[0]; 						
-                    FillFIFO(DeviceDescriptor,DeviceDescriptor[0]) ;                      
-                    while(USB0->CSRL0 & 0x02) ;
+                                     
+                    /* Clear RXRDY (ACK) and set DATAEND bit since no Data Stage for SET_ADDR */ 
+                    USB0->CSRL0 = 0x48; 
 
-                    USB0->CSRL0 = 0x0A ;                     
-                    state = 1; 
+                    dev_address = request->wValue ; 
+										
+									  /* Pend changing the device address & write it after status stage is completed */ 
+                    dev_address |= (1u<<31); 	/* Using the same variable as address is 7-bit */ 
+
+                    break ; 
                 }
-
-                else if((request->wValue>>8) == 0x02)
+								
+			/* GET_DESCRIPTOR */ 
+            case 0x06 : 
                 {
-                    while(USB0->CSRL0 & 0x02) ;
-
-                    if(request->wLength>64)		
+                    USB0->CSRL0 = 0x40 ; 
+                    /* TODO Figure out request and handle accordingly */ 
+									
+                    /* Figure out descriptor type (wValue 0xFF00) >> 8 */ 
+                    
+                    if((request->wValue>>8) == 0x1) 
                     {
-                        size = 64; 
-                        FillFIFO(configurationDescriptors,size) ;
-                        data = sizeof(configurationDescriptors) - 64; 
-                        state = 2; 
-                        USB0->CSRL0 = 0x02 ;
-                    }	
-
-                    else	
-                    {
-                        FillFIFO(configurationDescriptors,request->wLength) ;
-                        USB0->CSRL0 = 0x0A ;
+                        while(USB0->CSRL0 & 0x02) ;
+												
+						size = (request->wLength > DeviceDescriptor[0]) ? request->wLength : DeviceDescriptor[0]; 
+														
+						FillFIFO(DeviceDescriptor,DeviceDescriptor[0]) ; 
+                        
+                        while(USB0->CSRL0 & 0x02) ;
+                        
+                        USB0->CSRL0 = 0x0A ; 
+                        
+                        state = 1; 
                     }
 
-                    while(USB0->CSRL0 & 0x02) ; 
-                }
-                              
-                
-                else if(((request->wValue>>8 == 0x03)))                   
-                {
-                    while(USB0->CSRL0 & 0x02) ;
-                    
-                    uint8_t strindex = (request->wValue & 0xFF);									
-                    FillFIFO(stringPtr[strindex],stringPtr[strindex][0]) ;                       
-
-                    while(USB0->CSRL0 & 0x02) ;
+                    else if((request->wValue>>8) == 0x02)
+                    {
+                        while(USB0->CSRL0 & 0x02) ;
+                 										
+						if(request->wLength>64)		
+			    		{
+                            size = 64; 
+                            FillFIFO(configurationDescriptors,size) ;
+                            data = sizeof(configurationDescriptors) - 64; 
+                            state = 2; 
+                            USB0->CSRL0 = 0x02 ;
+                        }
+								
+                        else	
+                        {
+                            FillFIFO(configurationDescriptors,request->wLength) ;
+                            USB0->CSRL0 = 0x0A ;
+                        }
+						
                         
-                    USB0->CSRL0 = 0x0A ;                       
-                    state = 1; 
-                }            
+                        while(USB0->CSRL0 & 0x02) ; 
+                    }
+                    
+                  
+                    else if(((request->wValue>>8 == 0x03)))
+                        
+                    {
+                        while(USB0->CSRL0 & 0x02) ;
+												
+												uint8_t strindex = (request->wValue & 0xFF);
+											
+                        FillFIFO(stringPtr[strindex],stringPtr[strindex][0]) ; 
+                        
+                        while(USB0->CSRL0 & 0x02) ;
+                        
+                        USB0->CSRL0 = 0x0A ; 
+                        
+                        state = 1; 
+                    }
+                  
 
-                break ; 
-                
-            }       
+                    break ; 
+                }
+               
         }
     }
 }
@@ -160,7 +178,7 @@ void FillFIFO(uint8_t *dat, uint16_t lengthBytes)
 {
     for(uint16_t i=0; i<lengthBytes; i++)
     {
-        *((volatile uint8_t*)&USB0->FIFO0) = dat[i] ; 
+			 *((volatile uint8_t*)&USB0->FIFO0) = dat[i] ; 
     }
 }
 
@@ -171,6 +189,6 @@ void fetch_out_packet()
        
     for (uint32_t i=0; i<(c/sizeof(gl_control_ep_out_buffer[0])); i++)
     {
-        gl_control_ep_out_buffer[i] =  USB0->FIFO0;
+             gl_control_ep_out_buffer[i] =  USB0->FIFO0;
     }
 }

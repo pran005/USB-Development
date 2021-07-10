@@ -20,7 +20,7 @@ typedef struct
 } __attribute__((packed)) USB_Request_t ;
 
 void USB0_Handler(void); 
-void USBEnum_Handler(void);
+void ControlEP_Handler(void);
 void USBCommunicate(void); 
 void fetch_out_packet(void); 
 void FillFIFO(uint8_t *dat, uint16_t lengthBytes) ;

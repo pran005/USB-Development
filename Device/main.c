@@ -1,7 +1,9 @@
 #include "TM4C123.h"         
 #include "usb_descriptors.h"
 #include "usb.h"
+#include "usb_driver.h"
 #include <stdio.h> 
+#include <stdlib.h>
 
 void init_onBoardLed(void);
 volatile static uint32_t gl_usb_intr_stat, gl_usb_tx_stat, gl_usb_rx_stat ;
@@ -59,16 +61,16 @@ int main(void)
 /* USB Interrupt Handler */
 void USB0_Handler(void)
 {
-    gl_usb_intr_stat = USB0->IS ;
+    gl_usb_intr_stat = USB0->IS;
     gl_usb_tx_stat = USB0->TXIS;
     gl_usb_rx_stat = USB0->RXIS;
 
     /* Check if there's TX/RX Interrupt asserted on EP0 */ 
     if(gl_usb_tx_stat & 0x01) 
     {
-        /* Enumeration Handler */ 
-        USBEnum_Handler() ; 
-    }
+	    /* Enumeration Handler */ 
+        ControlEP_Handler() ; 
+    }		
 }
 
 void init_onBoardLed(void)
