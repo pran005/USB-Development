@@ -13,16 +13,12 @@
 
 /* TODO: Remove magic numbers */
 
-/* TODO: Add param check for all functions & decide retval */ 
-
 /* TODO: Add init FIFO API. The FIFO for EP0 doesn't support
  *       dynamic sizing, instead the first 64-bytes of the 
  *       FIFO RAM are reserved for EP0 which is shared between
  *       IN & OUT transfers (Section 18.3.3.1 of Datasheet). 
  */
-
-
-/* TODO: Separate device specific and IP specific functions */ 
+ 
 
 /* Device Specific */
 static void initialize_usb_pins(void)
@@ -59,34 +55,43 @@ static void usb_clock_config(void)
     SYSCTL->RCC2 &= ~(1u<<14); 
 }
 
-static void usb_set_mode(usb_en_mode_t usbMode)
+static usb_drv_ret_type_t usb_set_mode(usb_en_mode_t usbMode)
 {
+    usb_drv_ret_type_t retval = USB_DRV_BAD_PARAM; 
     switch(usbMode)
     {
         case USB_MODE_HOST: 
 
             USB0->GPCS = 0x02;
+            retval = USB_DRV_SUCCESS; 
             break; 
 
         case USB_MODE_OTG:
        
             USB0->GPCS = 0x00;
+            retval = USB_DRV_SUCCESS; 
+
             break;
 
         case USB_MODE_DEVICE: 
 
             USB0->GPCS = 0x03;
-            break; 
+            retval = USB_DRV_SUCCESS; 
+
+            break;
+
     }
+
+    return retval;
 }
 
-void Device_Connect(void)
+void USBDevice_Connect(void)
 {
     /* Enable 'em D+/D- Terminations */ 
     USB0->POWER |= (1<<6); 
 }
 
-void Device_Disconnect(void)
+void USBDevice_Disconnect(void)
 {
     /* Disable 'em D+/D- Terminations */ 
     USB0->POWER &= ~(1<<6); 
@@ -108,25 +113,34 @@ uint32_t USBRead_GeneralInterrupts(void)
     return USB0->IS; 
 }
 
-void USBEnable_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode, uint16_t EpIntMsk)
+usb_drv_ret_type_t USBEnable_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode, uint16_t EpIntMsk)
 {
+    usb_drv_ret_type_t retval = USB_DRV_SUCCESS; 
+
     if((EpType==EP_TYP_IN) && (usbMode == USB_MODE_DEVICE))
     {
-        USB0->TXIE = EpIntMsk; 
+        USB0->TXIE |= EpIntMsk; 
     }
 
     else if((EpType==EP_TYP_OUT) && (usbMode == USB_MODE_DEVICE))
     {
-        USB0->RXIE = (EpIntMsk & (~0x01)); 
+        USB0->RXIE |= (EpIntMsk & (~0x01)); 
     }
 
     else if((EpType==EP_TYP_ALL) && (usbMode == USB_MODE_DEVICE))
     {
-        USB0->TXIE = EpIntMsk; 
-        USB0->RXIE = (EpIntMsk & (~0x01)); 
+        USB0->TXIE |= EpIntMsk; 
+        USB0->RXIE |= (EpIntMsk & (~0x01)); 
     }
     
     /* TODO: Add Host Mode support */ 
+
+    else
+    {
+        retval = USB_DRV_BAD_PARAM;
+    }
+		
+	return retval;
 }
 
 uint32_t USBRead_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode)
@@ -172,7 +186,7 @@ void initialize_usb_driver(void)
     USBEnable_EpInterrupts(EP_TYP_ALL, USB_MODE_DEVICE,0xFF); 
   	
     /* Make device visible on bus */
-    Device_Connect();
+    USBDevice_Connect();
 
     /* You should know this one */
     NVIC_EnableIRQ(USB0_IRQn); 
