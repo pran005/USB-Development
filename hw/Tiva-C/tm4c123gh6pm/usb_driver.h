@@ -4,12 +4,12 @@
 #include "TM4C123.h"         
 #include <stdint.h>
 
-typedef enum usb_drv_ret_type_t
+typedef enum usb_en_drv_ret_type_t
 {
     USB_DRV_BAD_PARAM = -1,
     USB_DRV_SUCCESS
 
-}usb_drv_ret_type_t;
+}usb_en_drv_ret_type_t;
 
 typedef enum usb_en_EpType_t
 {

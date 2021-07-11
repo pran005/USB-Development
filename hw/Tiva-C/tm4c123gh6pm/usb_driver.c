@@ -55,9 +55,9 @@ static void usb_clock_config(void)
     SYSCTL->RCC2 &= ~(1u<<14); 
 }
 
-static usb_drv_ret_type_t usb_set_mode(usb_en_mode_t usbMode)
+static usb_en_drv_ret_type_t usb_set_mode(usb_en_mode_t usbMode)
 {
-    usb_drv_ret_type_t retval = USB_DRV_BAD_PARAM; 
+    usb_en_drv_ret_type_t retval = USB_DRV_BAD_PARAM; 
     switch(usbMode)
     {
         case USB_MODE_HOST: 
@@ -113,9 +113,9 @@ uint32_t USBRead_GeneralInterrupts(void)
     return USB0->IS; 
 }
 
-usb_drv_ret_type_t USBEnable_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode, uint16_t EpIntMsk)
+usb_en_drv_ret_type_t USBEnable_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode, uint16_t EpIntMsk)
 {
-    usb_drv_ret_type_t retval = USB_DRV_SUCCESS; 
+    usb_en_drv_ret_type_t retval = USB_DRV_SUCCESS; 
 
     if((EpType==EP_TYP_IN) && (usbMode == USB_MODE_DEVICE))
     {
