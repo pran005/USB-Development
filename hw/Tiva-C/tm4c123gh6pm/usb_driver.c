@@ -55,27 +55,30 @@ static void usb_clock_config(void)
     SYSCTL->RCC2 &= ~(1u<<14); 
 }
 
-static usb_en_drv_ret_type_t usb_set_mode(usb_en_mode_t usbMode)
+static usb_en_drv_ret_type_t usb_set_mode(usb_drv_context_t *context)
 {
-    usb_en_drv_ret_type_t retval = USB_DRV_BAD_PARAM; 
-    switch(usbMode)
+    usb_en_drv_ret_type_t retval = USB_DRV_BAD_PARAM;
+    
+    USB0_Type* usb = context->base; 
+
+    switch(context->dataRole)
     {
         case USB_MODE_HOST: 
 
-            USB0->GPCS = 0x02;
+            usb->GPCS = 0x02;
             retval = USB_DRV_SUCCESS; 
             break; 
 
         case USB_MODE_OTG:
        
-            USB0->GPCS = 0x00;
+            usb->GPCS = 0x00;
             retval = USB_DRV_SUCCESS; 
 
             break;
 
         case USB_MODE_DEVICE: 
 
-            USB0->GPCS = 0x03;
+            usb->GPCS = 0x03;
             retval = USB_DRV_SUCCESS; 
 
             break;
@@ -85,21 +88,21 @@ static usb_en_drv_ret_type_t usb_set_mode(usb_en_mode_t usbMode)
     return retval;
 }
 
-void USBDevice_Connect(void)
+void USBDevice_Connect(usb_drv_context_t *context)
 {
     /* Enable 'em D+/D- Terminations */ 
-    USB0->POWER |= (1<<6); 
+    context->base->POWER |= (1<<6); 
 }
 
-void USBDevice_Disconnect(void)
+void USBDevice_Disconnect(usb_drv_context_t *context)
 {
     /* Disable 'em D+/D- Terminations */ 
-    USB0->POWER &= ~(1<<6); 
+    context->base->POWER &= ~(1<<6); 
 }
 
-void USBEnable_GeneralInterrupts(uint32_t intrMask)
+void USBEnable_GeneralInterrupts(usb_drv_context_t *context)
 {
-    USB0->IE |= intrMask; 
+    context->base->IE |= context->USBIntrMask; 
 }
 
 void USBDisable_GeneralInterrupts(uint32_t intrMask)
@@ -108,29 +111,29 @@ void USBDisable_GeneralInterrupts(uint32_t intrMask)
 }
 
 /* A read clears the interrupts */ 
-uint32_t USBRead_GeneralInterrupts(void)
+uint32_t USBRead_GeneralInterrupts(usb_drv_context_t *context)
 {
-    return USB0->IS; 
+    return context->base->IS; 
 }
 
-usb_en_drv_ret_type_t USBEnable_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode, uint16_t EpIntMsk)
+usb_en_drv_ret_type_t USBEnable_EpInterrupts(usb_drv_context_t *context, usb_en_EpType_t EpType)
 {
     usb_en_drv_ret_type_t retval = USB_DRV_SUCCESS; 
 
-    if((EpType==EP_TYP_IN) && (usbMode == USB_MODE_DEVICE))
+    if((EpType==EP_TYP_IN) && (context->dataRole == USB_MODE_DEVICE))
     {
-        USB0->TXIE |= EpIntMsk; 
+        context->base->TXIE |= context->EpIntMsk; 
     }
 
-    else if((EpType==EP_TYP_OUT) && (usbMode == USB_MODE_DEVICE))
+    else if((EpType==EP_TYP_OUT) && (context->dataRole == USB_MODE_DEVICE))
     {
-        USB0->RXIE |= (EpIntMsk & (~0x01)); 
+        context->base->RXIE |= (context->EpIntMsk & (~0x01)); 
     }
 
-    else if((EpType==EP_TYP_ALL) && (usbMode == USB_MODE_DEVICE))
+    else if((EpType==EP_TYP_ALL) && (context->dataRole == USB_MODE_DEVICE))
     {
-        USB0->TXIE |= EpIntMsk; 
-        USB0->RXIE |= (EpIntMsk & (~0x01)); 
+        context->base->TXIE |= context->EpIntMsk; 
+        context->base->RXIE |= (context->EpIntMsk & (~0x01)); 
     }
     
     /* TODO: Add Host Mode support */ 
@@ -143,18 +146,18 @@ usb_en_drv_ret_type_t USBEnable_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode
 	return retval;
 }
 
-uint32_t USBRead_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode)
+uint32_t USBRead_EpInterrupts(usb_drv_context_t *context, usb_en_EpType_t EpType)
 {
     uint32_t retval = 0;
     
-    if((EpType==EP_TYP_IN) && (usbMode == USB_MODE_DEVICE))
+    if((EpType==EP_TYP_IN) && (context->dataRole == USB_MODE_DEVICE))
     {
-        retval = USB0->TXIS; 
+        retval = context->base->TXIS; 
     }
 
-    else if((EpType==EP_TYP_OUT) && (usbMode == USB_MODE_DEVICE))
+    else if((EpType==EP_TYP_OUT) && (context->dataRole == USB_MODE_DEVICE))
     {
-        retval = USB0->RXIS; 
+        retval = context->base->RXIS; 
     }
 
     /* TODO: Add Host mode support */ 
@@ -162,7 +165,7 @@ uint32_t USBRead_EpInterrupts(usb_en_EpType_t EpType, usb_en_mode_t usbMode)
     return retval; 
 }
 
-void initialize_usb_driver(void)
+void initialize_usb_driver(usb_drv_context_t *context)
 {
     /* Configure GPIOs for USB */
     initialize_usb_pins(); 
@@ -174,21 +177,15 @@ void initialize_usb_driver(void)
     usb_clock_config();
 
     /* Set USB mode */ 
-    usb_set_mode(USB_MODE_DEVICE); 
+    usb_set_mode(context); 
 
     /* Clear Interrupt Status Registers */ 
-    USBRead_GeneralInterrupts(); 
-    USBRead_EpInterrupts(EP_TYP_IN, USB_MODE_DEVICE); 
-    USBRead_EpInterrupts(EP_TYP_OUT, USB_MODE_DEVICE);	
+    USBRead_GeneralInterrupts(context); 
+    USBRead_EpInterrupts(context, EP_TYP_IN); 
+    USBRead_EpInterrupts(context, EP_TYP_OUT);	
     
     /* Initialize the USB IP */ 
-    USBEnable_GeneralInterrupts((1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5));
-    USBEnable_EpInterrupts(EP_TYP_ALL, USB_MODE_DEVICE,0xFF); 
+    USBEnable_GeneralInterrupts(context) ;   // ((1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5));
+    USBEnable_EpInterrupts(context, EP_TYP_ALL); 
   	
-    /* Make device visible on bus */
-    USBDevice_Connect();
-
-    /* You should know this one */
-    NVIC_EnableIRQ(USB0_IRQn); 
-
 }
