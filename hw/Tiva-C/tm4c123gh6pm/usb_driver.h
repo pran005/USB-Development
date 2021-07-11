@@ -25,6 +25,28 @@ typedef enum usb_en_mode_t
     USB_MODE_DEVICE,
 }usb_en_mode_t;
 
+typedef struct
+{
+    USB0_Type base;                     /** Base Address of the USB peripheral **/ 
+    usb_en_mode_t dataRole;             /** Data Role : Host/Device **/ 
+    uint8_t USBIntrMask;                /** USB Events Interrupt Mask **/
+                                        /** For Device Mode:     |  For Host Mode
+                                                                 |
+                                            Bit 0: Suspend       |   Bit 0: Reserved
+                                            Bit 1: Resume        |   Bit 1: Resume      
+                                            Bit 2: Bus Reset     |   Bit 2: Babble   
+                                            Bit 3: SOF           |   Bit 3: SOF         
+                                            Bit 4: Reserved      |   Bit 4: Connect    
+                                            Bit 5: Disconnect    |   Bit 5: Disconnect  
+                                            Bit [7:6]: Reserved  |   Bit [7:6]: [VbusErr : SessionReq] 
+    
+                                         **/ 
+
+    uint8_t EpIntMask;                  /** Endpoint Interrupt Mask [7:0] - EP0-7 **/ 
+    usb_en_EpType_t EP_Type[8];         /** Endpoint Direction **/
+
+}usb_drv_context_t;
+
 void USBEnable_GeneralInterrupts(uint32_t intrMask);
 void USBDisable_GeneralInterrupts(uint32_t intrMask);
 uint32_t USBRead_GeneralInterrupts(void);
