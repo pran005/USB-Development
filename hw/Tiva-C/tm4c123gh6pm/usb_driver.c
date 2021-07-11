@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    usb_driver.c 
   * @author  Pranjal Shrivastava
-  * @version v0.5 - USB Hardware Driver Layer  
-  * @date    17-February-2021
+  * @version v0.7 - USB Hardware Driver Layer  
+  * @date    11-July-2021
   * @brief   Peripheral Driver for USB IP in TM4C123GH6PM MCU 
   ******************************************************************************
  **/
