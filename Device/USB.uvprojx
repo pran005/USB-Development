@@ -403,6 +403,66 @@
               <FileType>1</FileType>
               <FilePath>.\usb.c</FilePath>
             </File>
+            <File>
+              <FileName>usb_driver.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\usb_driver.h</FilePath>
+            </File>
+            <File>
+              <FileName>usb_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\usb_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>rom_map.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rom_map.h</FilePath>
+            </File>
+            <File>
+              <FileName>rom.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rom.h</FilePath>
+            </File>
+            <File>
+              <FileName>hw_sysctl.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\hw_sysctl.h</FilePath>
+            </File>
+            <File>
+              <FileName>hw_timer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\hw_timer.h</FilePath>
+            </File>
+            <File>
+              <FileName>hw_uart.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\hw_uart.h</FilePath>
+            </File>
+            <File>
+              <FileName>hw_usb.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\hw_usb.h</FilePath>
+            </File>
+            <File>
+              <FileName>hw_gpio.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\hw_gpio.h</FilePath>
+            </File>
+            <File>
+              <FileName>hw_memmap.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\hw_memmap.h</FilePath>
+            </File>
+            <File>
+              <FileName>gpio.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\gpio.h</FilePath>
+            </File>
+            <File>
+              <FileName>sysctl.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\sysctl.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
