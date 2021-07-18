@@ -18,6 +18,16 @@ typedef enum usb_en_EpType_t
     EP_TYP_ALL=2,
 }usb_en_EpType_t;
 
+typedef enum
+{
+    EP0_STATE_IDLE=0,
+    EP0_STATE_TX,
+    EP0_STATE_RX,
+    EP0_STATE_STATUS,
+    EP0_STATE_STALL,
+
+} usb_en_ep0_state_t; 
+
 typedef enum usb_en_mode_t
 {
     USB_MODE_HOST=0, 
@@ -42,7 +52,9 @@ typedef struct
     
                                      **/ 
 
-    uint16_t EpIntMsk;               /** Endpoint Interrupt Mask [7:0] - EP0-7 **/ 
+    uint16_t EpIntMsk;              /** Endpoint Interrupt Mask [7:0] - EP0-7 **/ 
+    uint32_t devAddress;             /** USB Device Address set by the Host */
+    void *usb_stack_ctx;            /** Pointer to the Middleware stack context **/
 
 }usb_drv_context_t;
 
@@ -54,6 +66,11 @@ usb_en_drv_ret_type_t USBEnable_EpInterrupts(usb_drv_context_t *context, usb_en_
 void initialize_usb_driver(usb_drv_context_t *context);
 void USBDevice_Disconnect(usb_drv_context_t *context);
 void USBDevice_Connect(usb_drv_context_t *context);
+void USB_Handler(usb_drv_context_t *context); 
+
+void ControlEP_Handler(usb_drv_context_t *context);
+void fetch_out_packet(void); 
+void FillFIFO(uint8_t *dat, uint16_t lengthBytes) ;
 
 
 #endif /* __usb_driver_h_ */ 
