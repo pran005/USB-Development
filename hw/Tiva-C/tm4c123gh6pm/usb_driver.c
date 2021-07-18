@@ -10,7 +10,8 @@
 
 
 #include "usb_driver.h"
-
+#include "usb.h"
+#include "usb_descriptors.h"
 /* TODO: Remove magic numbers */
 
 /* TODO: Add init FIFO API. The FIFO for EP0 doesn't support
@@ -20,6 +21,9 @@
  */
  
 
+extern volatile uint16_t data;
+extern volatile uint32_t c;  
+extern volatile uint32_t gl_control_ep_out_buffer[64]; 
 /* Device Specific */
 static void initialize_usb_pins(void)
 {
@@ -188,4 +192,91 @@ void initialize_usb_driver(usb_drv_context_t *context)
     USBEnable_GeneralInterrupts(context) ;   // ((1u<<0) | (1u<<1) | (1u<<2) | (1u<<3) | (1u<<5));
     USBEnable_EpInterrupts(context, EP_TYP_ALL); 
   	
+}
+
+void USB_Handler(usb_drv_context_t *context)
+{
+    volatile uint32_t usb_intr_status = context->base->IS; 
+    volatile uint32_t usb_tx_status = context->base->TXIS; 
+    volatile uint32_t usb_rx_status = context->base->RXIS; 
+
+    /* Check for EP0 interrupt */ 
+    if(usb_tx_status & 0x01)
+    {
+        ControlEP_Handler(context);
+    }
+}
+
+volatile usb_en_ep0_state_t Ep0State = EP0_STATE_STATUS;
+
+/* TODO: Define clear states, use typedef enum for state variable */
+void ControlEP_Handler(usb_drv_context_t *context)
+{
+    switch(Ep0State)
+    {
+        /* Idle State */ 
+        case EP0_STATE_IDLE: 
+        { 
+            if(context->base->CSRL0 & 0x01)
+            {
+                USBCommunicate(context); 
+            }
+            break;
+        }
+				
+		/* Status Stage */ 
+        case EP0_STATE_STATUS: 
+        { 
+            if (context->devAddress & (1u<<31))
+            {
+                USB0->FADDR = (uint8_t)context->devAddress; 
+                context->devAddress &= ~(1u<<31); 
+            }
+
+            if(context->base->CSRL0 & 0x01)
+            {
+                USBCommunicate(context); 
+            }
+            break ;
+        }
+				
+		/* The "still transmitting" Stage (bMaxPacketSize < data length) */
+		case EP0_STATE_TX:
+        {
+		    if(data)
+			{
+			    fetch_out_packet(); 
+				while(USB0->CSRL0 & 0x02) ;
+						
+				/* TODO: Remove numeric constant */ 
+				FillFIFO(&configurationDescriptors[64],data) ;
+				data = 0;
+				Ep0State = EP0_STATE_STATUS;
+					
+				while(USB0->CSRL0 & 0x02) ;
+				USB0->CSRL0 = 0x0A ; 
+			}	
+				break;
+        }
+
+    }
+}
+
+void FillFIFO(uint8_t *dat, uint16_t lengthBytes) 
+{
+    for(uint16_t i=0; i<lengthBytes; i++)
+    {
+			 *((volatile uint8_t*)&USB0->FIFO0) = dat[i] ; 
+    }
+}
+
+void fetch_out_packet() 
+{
+    /* Check num bytes received */
+    c = USB0->COUNT0 ;
+       
+    for (uint32_t i=0; i<(c/sizeof(gl_control_ep_out_buffer[0])); i++)
+    {
+             gl_control_ep_out_buffer[i] =  USB0->FIFO0;
+    }
 }
